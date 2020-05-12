@@ -6,6 +6,11 @@
 #include <dirent.h>
 #include <pwd.h>
 #include <stdlib.h>
+#include <fcntl.h>
+
+
+#define COPYMODE 0644 //定义目标文件模式
+#define BUF 4096 //定义缓冲区大小
 
 typedef struct DIRs
 {
@@ -21,8 +26,9 @@ typedef struct NODE
 void put(NodePtr head, Node *node);
 NodePtr pop(NodePtr head);
 NodePtr createNode(char dir_path[]);
-void dealFileInDir(char path[]);
-char *mergeString(char first[], char last[]);
+void dealFileInDir(char *file_path, char *filename);
+char * mergeString(char first[], char last[]);
+void copyFile(char *src, char *tar);
 NodePtr head;
 
 
@@ -97,7 +103,7 @@ void read_dir(char *dir_path)
                 printf("dir %s\n", det->d_name);
                 push(head, createNode(mergeString(dir_path, det->d_name)));
             } else {
-                dealFileInDir(mergeString(dir_path, det->d_name));
+                dealFileInDir(mergeString(dir_path, det->d_name),det->d_name);
             }
         }
     }
@@ -110,9 +116,11 @@ void read_dir(char *dir_path)
     closedir(cwd);
 }
 
-void dealFileInDir(char *file_path)
+void dealFileInDir(char *file_path, char *filename)
 {
-    printf("no dir:%s\n", file_path);
+
+    copyFile(file_path, mergeString("/home/tingzheng/temp",filename));
+    //printf("no dir:%s\n", file_path);
 }
 
 
@@ -129,10 +137,50 @@ char *mergeString(char first[], char last[])
     return name;
 }
 
+
+void copyFile(char *src, char *tar)
+{
+    int in_fd = -1, out_fd = -1; //定义文件标识符
+
+    if( ( in_fd = open( src, O_RDONLY ) ) == -1 ) { //以只读方式打开源文件
+        perror( "file open" );
+        exit( -1 );
+    }
+
+    if ( ( out_fd = creat( tar, COPYMODE ) ) == -1 ) { //以拷贝模式打开目标文件
+        perror( "file copy" );
+        exit( -1 );
+    }
+
+    char n_chars[BUF];  //设置文件缓冲数组
+    int len = 0;
+
+    while( ( len = read( in_fd, n_chars, sizeof( n_chars ) ) ) > 0 ) { //读取源文件，如果源文件读取没有到头，读到头为0，发生错误为-1
+        if ( write( out_fd, n_chars, len ) != len ) { //写入目标文件
+            printf( "文件:%s发生copy错误\n", tar );
+            exit( -1 );
+        }
+    }
+
+    if( len == -1 ) {   //如果发生错误
+        printf( "读取%s文件错误\n", src );
+        exit( -1 );
+    }
+
+    if( close( in_fd ) == -1 ) {      //关闭源文件
+        printf( "文件%s关闭失败\n", src );
+        exit( -1 );
+    }
+    if( close( out_fd ) == -1 ) {   //关闭目标文件
+        printf( "文件%s关闭失败\n", tar );
+        exit( -1 );
+    }
+}
+
 int main(int argc, char *argv[])
 {
     head = createNode("head");
     printf("%s\n", argv[0]);
-    read_dir("/home/tingzheng");
+    read_dir("/home/tingzheng/test");
     return 0;
 }

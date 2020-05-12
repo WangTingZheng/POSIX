@@ -8,8 +8,11 @@
 │   └── cp.c
 ├── list
 │   └── list.c
-└── ls
-    └── ls.c
+├── ls
+│   ├── ls.c
+│   └── README.md
+└── thread
+    └── thread.c
 ```
 
 ### 编译
