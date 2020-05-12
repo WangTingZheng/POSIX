@@ -17,6 +17,18 @@ struct mode
     int isSymlink;
 };
 
+void print_help()
+{
+	printf("不指定目录\n");
+	printf("	myls 打印出当前目录的文件信息\n");
+	printf("指定目录\n");
+	printf("	myls dir_path 打印出这个目录下的文件信息\n");
+	printf("选项\n");
+	printf("	--p(point)   是否显示当前目录本身. 和上级目录\n");
+	printf("	--i(ignore)  是否显示隐藏文件\n");
+	printf("	--s(symlink) 是否显示符号链接文件本身的属性还是符号链接指向文件的属性\n");
+}
+
 /*
  * 是否显示当前目录本身. 和上级目录 --p(point)
  * 是否显示隐藏文件 --i(ignore)
@@ -28,11 +40,12 @@ int main(int argc, char *argv[])
 {
     char buf[1024] = "";												//路径名
     struct mode print_mode;
-
+    /*
     for (int j = 0; j < argc; j++)
     {
     	printf("第%d个为%s\n",j, argv[j]);
     }
+    */
     if (argc >= 3)
     {
     	for(int i=2 ; i<argc;i++)
@@ -46,6 +59,10 @@ int main(int argc, char *argv[])
 	        }else if(strcmp(argv[i], "--s") == 0)
 	        {
 	        	print_mode.isSymlink = 1;
+	        }else if(strcmp(argv[i], "--h") == 0)
+	        {
+	        	print_help();
+			return 0;
 	        }
 	    }
 	    myls_l(argv[1], print_mode);
@@ -66,7 +83,11 @@ int main(int argc, char *argv[])
         	print_mode.isSymlink = 1;
             getcwd(buf, sizeof(buf));										//获得当前路径
             myls_l(buf, print_mode);
-        } 
+        } else if(strcmp(argv[1], "--h") == 0)
+	{
+	       	print_help();
+		return 0;
+	}
         else
         {
             myls_l(argv[1], print_mode);
@@ -168,8 +189,8 @@ void print_dir(struct dirent *det, struct mode print_mode)
 }
 
 void myls_l(char *pathname, struct mode print_mode) {
-    printf("%s\n", pathname);
-    printf("p：%d i:%d\n",print_mode.showPoint, print_mode.showIgnore);
+    //printf("%s\n", pathname);
+    //printf("p：%d i:%d\n",print_mode.showPoint, print_mode.showIgnore);
 
     DIR *cwd = NULL;                                                    //路径文件指针
     struct dirent *det = NULL;                                            //记录读到的文件信息
