@@ -1,39 +1,32 @@
-/*==============================
-*
-*
-* 文件名称： main.c
-* 作者： 王听正
-* 日期： 2020-5-11
-* 功能： 链表的插入操作
-*
-*
-===============================*/
+## 实验一：链表
 
-#include <stdio.h> //输入输出printf要用的
-#include <string.h>  //字符串处理函数
-#include <stdlib.h>
-#define DEAFULT_NAME "hlju"  //定义头节点学生名称
-#define DEAFULT_AGE 22  //定义头节点学生年龄
+### 节点结构体
 
+首先我们定义学生信息结构体，为了方便，我们使用`typedef`定义为枚举类型，学生信息包含两部分：学生姓名和学生年龄，一个是char型数组，一个是int型变量
+
+```c
 typedef struct stuInfo{ //学生信息
     char stuName[10];  //学生姓名
     int Age;  //学生年龄
 }ElemType;
+```
 
- 
+我们再把学生信息当作节点中的一个信息，定义一个节点，除学生信息以外，还得定义一个节点指针，指针，指向下一个节点，为了方便，我们定义一个指针变量，来存储节点指针：
+
+```c
 typedef struct node{ //节点结构体
     ElemType data;  //学生信息
     struct node *next;  //下一个节点的地址
 }ListNode, *ListPtr;
+```
 
+### 创建节点
 
+CreateList的作用是创建一个链表，也就是创建一个头节点。其中的`DEAFULT_NAME`和`DEAFULT_AGE`使用`#define` 定义。
 
-/*
-* 创建头节点
-* name[10]: 节点中的学生的姓名
-* age: 节点中学生的年龄
-* return: 一个链表节点
-*/
+![uml](../../doc/list/createList.jpg)
+
+```cc
 ListPtr CreateList()
 {
     ListPtr listNode = (ListPtr)malloc(sizeof(ListNode));  //定义一个节点变量
@@ -44,27 +37,33 @@ ListPtr CreateList()
     listNode->next = NULL; //把学生节点的下一个节点的地址设置为空
     return listNode; //返回节点
 }
+```
 
+### 打印链表
 
-/*
-* 定义链表中所有的学生信息
-* head: 链表头节点的地址
-*/
+打印链表的功能是打印出除头节点以外所有节点的学生信息。主要思路是通过while循环遍历链表的每一个节点，直到节点为空时退出。
+
+![PrintList](../../doc/list/PrintList.jpg)
+
+```c
 void PrintList(ListNode *head)
 {
     ListPtr node = head->next; //从头节点的下一个开始
     while (node != NULL) //如果当前节点不为空，就可以打印，否则不打印
     {
-        printf("name %s, age %d\n", node->data.stuName, node->data.Age); //打印学生名字和年龄
+        printf("name %s, age %d\n", node->data.stuName, node->data.Age);//打印学生名字和年龄
         node = node->next; //把节点指向下一个节点
     }
 }
+```
 
+### 在链表末尾添加节点
 
-/*
-* 在链表某位添加一个节点
-* head: 要操作的链表的头节点地址
-*/
+要想在末尾添加节点，重点在于如何找到最后一个节点，最后一个节点有一个别人没有的特征——它的下一个节点的地址为空，利用它在加上一个while循环，我们就可以得到一个链表的最后一个节点了。我们再新建一个节点，把这个节点接到最后一个节点上就可以了。
+
+![PrintList](../../doc/list/addNode.jpg)
+
+```c
 void addNode(ListNode *head)
 {
     ListPtr node = head;  //定义一个节点地址变量，把头节点的地址赋值给它
@@ -79,12 +78,15 @@ void addNode(ListNode *head)
     node->next = add; //把原本链表最后的节点的下一跳地址设置为新加入的节点地址
     PrintList(head); // 打印链表，提示添加情况
 }
+```
 
+### 插入节点
 
-/*
-* 向链表中间插入一个节点
-* head: 要操作的链表的头节点的地址
-*/
+插入节点的关键是如何找到要插入的地方，这里采用序号作位置，使用一个while循环，如果碰到序号与想要的一致，就跳出循环，再把这个节点的下一个节点的地址赋值给新节点，把新节点的地址赋值给这个节点的下一跳指针变量里。
+
+![PrintList](../../doc/list/insertNode.jpg)
+
+```c
 void InsertList(ListNode *head)
 {
    int index = 1;  //初始化节点位置
@@ -114,46 +116,5 @@ void InsertList(ListNode *head)
    newNode->next = temp->next; //把前面节点的下一个节点位置赋值给新节点的下一个节点位置指针变量
    temp->next = newNode; //把前面节点的下一跳节点位置设置为新插入节点的地址
 }
+```
 
-
-
-int isCommand(char enter)
-{	
-	int num = (int)enter -48;
-	if(num >=1 && num <=5)
-		return 1;
-	return 0;
-}
-
-/*
-* 主函数
-*/
-int main(int argc, char* argv[])
-{
-    ListPtr listNode; //定义链表头节点变量
-    while(1) //构建死循环，便于重复输入命令
-    {
-        printf("1 create list\n");   //定义命令代号
-        printf("2 printf list\n");
-        printf("3 insert list\n");
-        printf("4 add node\n");
-        printf("5 quit\n");
-        char command  = getchar(); //接收用户输入的值
-        while (command == '\n' || isCommand(command) ==0 ) //如果输入的值不等于任何代号或者等于换行 
-             command  = getchar(); //继续接收代号输入
-
-        switch(command)
-        {
-            case '1': listNode  = CreateList();
-                break;
-            case '2': PrintList(listNode);
-                break;
-            case '3': InsertList(listNode);
-                break;
-            case '4': addNode(listNode);
-                break;
-            case '5':
-                return 0;
-        }
-    }
-}
