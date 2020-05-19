@@ -6,11 +6,7 @@
 #include <dirent.h>
 #include <pwd.h>
 #include <stdlib.h>
-#include <fcntl.h>
 
-
-#define COPYMODE 0644 //定义目标文件模式
-#define BUF 4096 //定义缓冲区大小
 
 typedef struct DIRs
 {
@@ -30,7 +26,8 @@ void dealFileInDir(char *file_path, char *filename);
 char * mergeString(char first[], char last[]);
 void copyFile(char *src, char *tar);
 NodePtr head;
-
+char mycp[100] = "/home/tingzheng/workspace/POSIX/build/mycp";
+char tar[100] = "/home/tingzheng/workspace/CCK/";
 
 void push(NodePtr head, NodePtr node)
 {
@@ -44,6 +41,11 @@ void push(NodePtr head, NodePtr node)
 
 NodePtr pop(Node *head)
 {
+    /*
+    NodePtr temp = head->next;
+    *head = *temp;
+    temp->next =NULL;
+    return temp;*/
     NodePtr temp = head;
     while(temp->next->next != NULL)
     {
@@ -53,6 +55,7 @@ NodePtr pop(Node *head)
     temp->next = NULL;
     free(temp->next);
     return res;
+    //return res;
 }
 
 NodePtr createNode(char dir_path[])
@@ -118,9 +121,13 @@ void read_dir(char *dir_path)
 
 void dealFileInDir(char *file_path, char *filename)
 {
+    if (fork() == 0)
+    {
+        printf("no dir:%s\n", file_path);
 
-    copyFile(file_path, mergeString("/home/tingzheng/temp",filename));
-    //printf("no dir:%s\n", file_path);
+        execl(mycp,"mycp",file_path,mergeString(tar,filename),NULL);
+    }
+    //copyFile(file_path, mergeString("/home/tingzheng/temp",filename));
 }
 
 
@@ -137,50 +144,27 @@ char *mergeString(char first[], char last[])
     return name;
 }
 
-
-void copyFile(char *src, char *tar)
+void do_help()
 {
-    int in_fd = -1, out_fd = -1; //定义文件标识符
-
-    if( ( in_fd = open( src, O_RDONLY ) ) == -1 ) { //以只读方式打开源文件
-        perror( "file open" );
-        exit( -1 );
-    }
-
-    if ( ( out_fd = creat( tar, COPYMODE ) ) == -1 ) { //以拷贝模式打开目标文件
-        perror( "file copy" );
-        exit( -1 );
-    }
-
-    char n_chars[BUF];  //设置文件缓冲数组
-    int len = 0;
-
-    while( ( len = read( in_fd, n_chars, sizeof( n_chars ) ) ) > 0 ) { //读取源文件，如果源文件读取没有到头，读到头为0，发生错误为-1
-        if ( write( out_fd, n_chars, len ) != len ) { //写入目标文件
-            printf( "文件:%s发生copy错误\n", tar );
-            exit( -1 );
-        }
-    }
-
-    if( len == -1 ) {   //如果发生错误
-        printf( "读取%s文件错误\n", src );
-        exit( -1 );
-    }
-
-    if( close( in_fd ) == -1 ) {      //关闭源文件
-        printf( "文件%s关闭失败\n", src );
-        exit( -1 );
-    }
-    if( close( out_fd ) == -1 ) {   //关闭目标文件
-        printf( "文件%s关闭失败\n", tar );
-        exit( -1 );
-    }
+    printf("thread --mycp mycp_path --tar target_path --dir directory_path\n");
 }
+
 
 int main(int argc, char *argv[])
 {
+    head  = createNode("NULL");
+     for (int i = 0; i < argc; ++i) {
+	printf("%d",i);
+        printf("%s\n",argv[i]);
+    }
     head = createNode("head");
-    printf("%s\n", argv[0]);
-    read_dir("/home/tingzheng/test");
+    if (strcmp(argv[1],"--mycp") == 0 && strcmp(argv[3],"--tar") == 0 && strcmp(argv[5],"--dir") == 0 )
+    {
+        strcpy(mycp,argv[2]);
+        strcpy(tar, argv[4]);
+        read_dir(argv[6]);
+    } else{
+        do_help();
+    }
     return 0;
 }
