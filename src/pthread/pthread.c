@@ -52,11 +52,6 @@ void push(NodePtr head, NodePtr node)
 
 NodePtr pop(Node *head)
 {
-    /*
-    NodePtr temp = head->next;
-    *head = *temp;
-    temp->next =NULL;
-    return temp;*/
     NodePtr temp = head;
     while(temp->next->next != NULL)
     {
@@ -66,7 +61,6 @@ NodePtr pop(Node *head)
     temp->next = NULL;
     free(temp->next);
     return res;
-    //return res;
 }
 
 NodePtr createNode(char dir_path[])
@@ -83,6 +77,7 @@ void printNode(NodePtr node)
 {
     printf("path is %s\n", node->dir.dir_path);
 }
+
 
 void printHeap(NodePtr head)
 {
