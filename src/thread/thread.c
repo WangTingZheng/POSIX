@@ -123,8 +123,7 @@ void dealFileInDir(char *file_path, char *filename)
 {
     if (fork() == 0)
     {
-        printf("no dir:%s\n", file_path);
-
+        printf("not dir:%s\n", file_path);
         execl(mycp,"mycp",file_path,mergeString(tar,filename),NULL);
     }
     //copyFile(file_path, mergeString("/home/tingzheng/temp",filename));
@@ -153,8 +152,8 @@ void do_help()
 int main(int argc, char *argv[])
 {
     head  = createNode("NULL");
-     for (int i = 0; i < argc; ++i) {
-	printf("%d",i);
+    for (int i = 0; i < argc; ++i) {
+	    printf("%d",i);
         printf("%s\n",argv[i]);
     }
     head = createNode("head");

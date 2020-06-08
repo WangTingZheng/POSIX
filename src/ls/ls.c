@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <pwd.h>
 #include <grp.h>
+#include <stdlib.h>
 
 
 struct mode
@@ -37,6 +38,7 @@ void print_help()
 
 void myls_l(char *pathname);
 void print_dir(struct dirent *det);
+
 
 
 int main(int argc, char *argv[])
@@ -137,7 +139,7 @@ void print_dir(struct dirent *det)
     else if(S_ISSOCK(statbuf.st_mode))									 //如果是套接字
         printf("s");
     //st_mode															//文件权限
-    if(statbuf.st_mode & S_IRUSR)
+    if(statbuf.st_mode &S_IRUSR)
         printf("r");
     else
         printf("-");
@@ -198,6 +200,7 @@ void print_dir(struct dirent *det)
 void myls_l(char *pathname) {
     //printf("%s\n", pathname);
     //printf("p：%d i:%d\n",print_mode.showPoint, print_mode.showIgnore);
+    
 
     DIR *cwd = NULL;                                                    //路径文件指针
     struct dirent *det = NULL;                                          //记录读到的文件信息

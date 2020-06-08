@@ -4,9 +4,16 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
+#include <dirent.h>
 
 #define COPYMODE 0644 //定义目标文件模式
 #define BUF 4096 //定义缓冲区大小
+
+
+
+char * get_filename(char *p);
+
 
 int main(int argc, char *argv[])
 {
@@ -15,6 +22,15 @@ int main(int argc, char *argv[])
         exit( -1 );
     }
 
+    DIR *cwd = NULL;                                                    //路径文件指针
+    struct dirent *det = NULL;                                          //记录读到的文件信息
+    
+    chdir(argv[2]);  
+    cwd = opendir(argv[2]);
+    if (cwd != NULL)
+    {
+        strcat(argv[2],get_filename(argv[1]));    
+    }                                            //打开目录
     int in_fd = -1, out_fd = -1; //定义文件标识符
 
     if( ( in_fd = open( argv[1], O_RDONLY ) ) == -1 ) { //以只读方式打开源文件
@@ -51,4 +67,12 @@ int main(int argc, char *argv[])
         exit( -1 );
     }
     return 0;
+}
+
+char * get_filename(char *p)
+{
+    int x = strlen(p);
+    char ch = '/';
+    char *q = strrchr(p,ch) +1;
+    return q;
 }
